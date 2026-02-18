@@ -6,6 +6,20 @@
 #include <linux/uidgid.h>
 #include <linux/string.h>
 
+#include "allowlist.h"
+#include "arch.h"
+#include "kp_hook.h"
+#include "ksu.h"
+#include "klog.h" // IWYU pragma: keep
+#include "ksud.h"
+#include "kernel_compat.h"
+#include "kp_util.h"
+#include "supercalls.h"
+#include "sucompat.h"
+#include "setuid_hook.h"
+#include "selinux/selinux.h"
+#include "throne_tracker.h"
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) ||                           \
 	defined(CONFIG_IS_HW_HISI) || defined(CONFIG_KSU_ALLOWLIST_WORKAROUND)
 static int ksu_key_permission(key_ref_t key_ref, const struct cred *cred,
