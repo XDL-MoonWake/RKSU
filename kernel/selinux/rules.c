@@ -18,17 +18,13 @@
 static struct policydb *get_policydb(void)
 {
 	struct policydb *db;
-// selinux_state does not exists before 4.19
-#ifdef KSU_COMPAT_USE_SELINUX_STATE
+// selinux_state does not exists before 4.19 (no it is)
 #ifdef SELINUX_POLICY_INSTEAD_SELINUX_SS
 	struct selinux_policy *policy = selinux_state.policy;
 	db = &policy->policydb;
 #else
 	struct selinux_ss *ss = selinux_state.ss;
 	db = &ss->policydb;
-#endif
-#else
-	db = &policydb;
 #endif
 	return db;
 }
@@ -198,8 +194,7 @@ static int get_object(char *buf, char __user *user_object, size_t buf_sz,
 	return 0;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) ||                           \
-	!defined(KSU_COMPAT_USE_SELINUX_STATE)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
 extern int avc_ss_reset(u32 seqno);
 #else
 extern int avc_ss_reset(struct selinux_avc *avc, u32 seqno);
@@ -207,8 +202,7 @@ extern int avc_ss_reset(struct selinux_avc *avc, u32 seqno);
 // reset avc cache table, otherwise the new rules will not take effect if already denied
 static void reset_avc_cache(void)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) ||                           \
-	!defined(KSU_COMPAT_USE_SELINUX_STATE)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 7, 0)
 	avc_ss_reset(0);
 	selnl_notify_policyload(0);
 	selinux_status_update_policyload(0);

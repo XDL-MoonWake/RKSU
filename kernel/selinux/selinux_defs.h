@@ -13,11 +13,7 @@
 static inline bool is_selinux_disabled(void)
 {
 #ifdef CONFIG_SECURITY_SELINUX_DISABLE
-#ifdef KSU_COMPAT_USE_SELINUX_STATE
 	return selinux_state.disabled;
-#else
-	return selinux_disabled;
-#endif
 #else
 	return false;
 #endif
@@ -26,11 +22,7 @@ static inline bool is_selinux_disabled(void)
 static inline bool is_selinux_enforcing(void)
 {
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
-#ifdef KSU_COMPAT_USE_SELINUX_STATE
 	return selinux_state.enforcing;
-#elif defined(SAMSUNG_SELINUX_PORTING) || !defined(KSU_COMPAT_USE_SELINUX_STATE)
-	return selinux_enforcing;
-#endif
 #else
 	return true;
 #endif
@@ -41,8 +33,6 @@ static inline void do_setenforce(bool val)
 #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
 #ifdef KSU_COMPAT_USE_SELINUX_STATE
 	selinux_state.enforcing = val;
-#else
-	selinux_enforcing = val;
 #endif
 #else
 	/* do nothing */
