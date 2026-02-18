@@ -4,8 +4,7 @@
 #include <linux/fs.h>
 #include <linux/version.h>
 #include <linux/task_work.h>
-#include "ss/policydb.h"
-#include "linux/key.h"
+#include <linux/key.h>
 
 /*
  * Adapt to Huawei HISI kernel without affecting other kernels ,
@@ -46,7 +45,12 @@ extern struct key *init_session_keyring;
 
 extern int do_close_fd(unsigned int fd);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
+extern void *ksu_compat_kvrealloc(const void *p, size_t oldsize, size_t newsize,
+				  gfp_t flags);
+#endif
+
+#ifndef VERIFY_READ
 #define ksu_access_ok(addr, size) access_ok(addr, size)
 #else
 #define ksu_access_ok(addr, size) access_ok(VERIFY_READ, addr, size)

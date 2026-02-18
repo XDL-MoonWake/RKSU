@@ -18,7 +18,6 @@
 
 #include "allowlist.h"
 #include "setuid_hook.h"
-#include "feature.h"
 #include "klog.h" // IWYU pragma: keep
 #include "manager.h"
 #include "selinux/selinux.h"
@@ -94,9 +93,9 @@ static void do_install_manager_fd(void)
 // force_sig kcompat, TODO: move it out of core_hook.c
 // https://elixir.bootlin.com/linux/v5.3-rc1/source/kernel/signal.c#L1613
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0)
-#define send_sigkill() force_sig(SIGKILL)
+#define send_sig(sig) force_sig(sig)
 #else
-#define send_sigkill() force_sig(SIGKILL, current)
+#define send_sig(sig) force_sig(sig, current)
 #endif
 
 extern void disable_seccomp(void);
@@ -184,17 +183,27 @@ int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid)
 	return 0;
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0) &&                          \
+     defined(CONFIG_KSU_MANUAL_HOOK))
+int ksu_handle_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+{
+	if (!is_zygote(current_cred())) {
+#ifdef CONFIG_KSU_DEBUG
+		pr_info("setresuid: disallow non zygote sid!\n");
+#endif
+		return 0;
+	}
+	return ksu_handle_setuid_common(ruid, current_uid().val, euid);
+}
+#endif
+
 void ksu_setuid_hook_init(void)
 {
 	ksu_kernel_umount_init();
-	if (ksu_register_feature_handler(&enhanced_security_handler)) {
-		pr_err("Failed to register enhanced security feature handler\n");
-	}
 }
 
 void ksu_setuid_hook_exit(void)
 {
 	pr_info("ksu setuid exit\n");
 	ksu_kernel_umount_exit();
-	ksu_unregister_feature_handler(KSU_FEATURE_ENHANCED_SECURITY);
 }
