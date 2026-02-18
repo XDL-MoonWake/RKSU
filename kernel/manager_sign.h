@@ -38,6 +38,11 @@
 #define EXPECTED_HASH_RAPLIVX                                                \
 	"a9462b8b98ea1ca7901b0cbdcebfaa35f0aa95e51b01d66e6b6d2c81b97746d8"
 
+// WildKernels/Wild_KSU
+#define EXPECTED_SIZE_WILD 0x381
+#define EXPECTED_HASH_WILD                                                \
+	"52d52d8c8bfbe53dc2b6ff1c613184e2c03013e090fe8905d8e3d5dc2658c2e4"
+
 typedef struct {
 	u32 size;
 	const char *sha256;
