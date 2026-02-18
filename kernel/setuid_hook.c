@@ -86,9 +86,9 @@ static void do_install_manager_fd(void)
 // force_sig kcompat, TODO: move it out of core_hook.c
 // https://elixir.bootlin.com/linux/v5.3-rc1/source/kernel/signal.c#L1613
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0)
-#define send_sig(sig) force_sig(sig)
+#define send_sigkill() force_sig(SIGKILL)
 #else
-#define send_sig(sig) force_sig(sig, current)
+#define send_sigkill() force_sig(SIGKILL, current)
 #endif
 
 extern void disable_seccomp(void);
