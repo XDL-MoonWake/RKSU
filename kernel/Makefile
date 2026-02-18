@@ -31,6 +31,12 @@ ccflags-y += -DKSU_BRANCH=\"$(KSU_GIT_BRANCH)\"
 $(info -- KernelSU version: $(KSU_VERSION))
 $(info -- KernelSU branch: $(KSU_GIT_BRANCH))
 
+# KernelSU-Next Compatibility
+ccflags-y += -DKSU_NEXT_VERSION_TAG=\"v3.0.0\"
+
+# SukiSU-Ultra Compatibility
+ccflags-y += -DSUKISU_VERSION_FULL=\"v4.1.0-6624337@unified\"
+
 # SELinux drivers check
 ifeq ($(shell grep -q "current_sid(void)" $(srctree)/security/selinux/include/objsec.h; echo $$?),0)
 ccflags-y += -DKSU_COMPAT_HAS_CURRENT_SID
