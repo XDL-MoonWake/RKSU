@@ -64,13 +64,6 @@ static int enhanced_security_feature_set(u64 value)
 	return 0;
 }
 
-static const struct ksu_feature_handler enhanced_security_handler = {
-	.feature_id = KSU_FEATURE_ENHANCED_SECURITY,
-	.name = "enhanced_security",
-	.get_handler = enhanced_security_feature_get,
-	.set_handler = enhanced_security_feature_set,
-};
-
 static void ksu_install_manager_fd_tw_func(struct callback_head *cb)
 {
 	ksu_install_fd();

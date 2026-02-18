@@ -10,6 +10,7 @@
 #include <linux/slab.h>
 #include <linux/types.h>
 #include <linux/version.h>
+#include "su_mount_ns.h"
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
 #include <linux/sched/task.h>
 #else

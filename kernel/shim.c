@@ -15,22 +15,6 @@
 #include "supercalls.h"
 #include "sucompat.h"
 #include "setuid_hook.h"
-#include "syscall_handler.h"
 #include "selinux/selinux.h"
 #include "throne_tracker.h"
-
-#ifdef CONFIG_KSU_SYSCALL_HOOK
-#include "pkg_observer.c"
-#include "kp_hook.c"
-#include "kp_util.c"
-#include "syscall_handler.c"
-#endif
-
-#if (defined(CONFIG_KSU_MANUAL_HOOK) &&                                        \
-     LINUX_VERSION_CODE < KERNEL_VERSION(6, 8, 0))
 #include "lsm_hook.c"
-#elif (defined(CONFIG_KSU_MANUAL_HOOK) &&                                      \
-       LINUX_VERSION_CODE >= KERNEL_VERSION(6, 8, 0))
-// + ksu_handle_setresuid hook for 6.8+
-#include "pkg_observer.c"
-#endif
