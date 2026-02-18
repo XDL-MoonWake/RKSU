@@ -17,4 +17,3 @@
 #include "setuid_hook.h"
 #include "selinux/selinux.h"
 #include "throne_tracker.h"
-#include "lsm_hook.c"
