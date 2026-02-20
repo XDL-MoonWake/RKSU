@@ -48,6 +48,16 @@
 #define EXPECTED_HASH_RESUKISU                                                 \
     "d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64"
 
+// Anatdx/YukiSU First Manager
+#define EXPECTED_SIZE_YUKISU_FIRST 0x29c
+#define EXPECTED_HASH_YUKISU_FIRST                                                    \
+	"6eafa78ef61acedcb19facd0387e42046a6614126782620244def709f9a84c7e"
+
+// Anatdx/YukiSU Second Manager
+#define EXPECTED_SIZE_YUKISU_SECOND 0x29c
+#define EXPECTED_HASH_YUKISU_SECOND                                                   \
+	"39559b380d4c0191eed81b7eba61533b6a2f247bc55bceba4259e983673f58b7"
+
 typedef struct {
 	u32 size;
 	const char *sha256;
