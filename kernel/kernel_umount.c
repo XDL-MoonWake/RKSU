@@ -93,6 +93,8 @@ void try_umount(const char *mnt, int flags)
 		return;
 	}
 
+	flags |= MNT_DETACH;
+
 	ret = ksu_umount_mnt(mnt, &path, flags);
 	if (ret) {
 		pr_info("%s: umounting %s (flags=0x%x) failed, err: %d\n",
