@@ -21,16 +21,50 @@ static struct policydb *get_policydb(void)
 // selinux_state does not exists before 4.19
 #ifdef KSU_COMPAT_USE_SELINUX_STATE
 #ifdef SELINUX_POLICY_INSTEAD_SELINUX_SS
-    struct selinux_policy *policy = selinux_state.policy;
-    db = &policy->policydb;
+	struct selinux_policy *policy = selinux_state.policy;
+	db = &policy->policydb;
 #else
-    struct selinux_ss *ss = selinux_state.ss;
-    db = &ss->policydb;
+	struct selinux_ss *ss = selinux_state.ss;
+	db = &ss->policydb;
 #endif
 #else
-    db = &policydb;
+	db = &policydb;
 #endif
     return db;
+}
+
+// Reverting https://github.com/tiann/KernelSU/commit/0b243c24ab6640ea1553c08066a2386456985a0d
+static void __maybe_unused apply_rules_for_manual_hook(struct policydb *db)
+{
+	// we need to save allowlist in /data/adb/ksu
+	ksu_allow(db, "kernel", "adb_data_file", "dir", ALL);
+	ksu_allow(db, "kernel", "adb_data_file", "file", ALL);
+	// we need to search /data/app
+	ksu_allow(db, "kernel", "apk_data_file", "file", "open");
+	ksu_allow(db, "kernel", "apk_data_file", "dir", "open");
+	ksu_allow(db, "kernel", "apk_data_file", "dir", "read");
+	ksu_allow(db, "kernel", "apk_data_file", "dir", "search");
+	// we may need to do mount on shell
+	ksu_allow(db, "kernel", "shell_data_file", "file", ALL);
+	// we need to read /data/system/packages.list
+	ksu_allow(db, "kernel", "kernel", "capability", "dac_override");
+	// Android 10+:
+	// http://aospxref.com/android-12.0.0_r3/xref/system/sepolicy/private/file_contexts#512
+	ksu_allow(db, "kernel", "packages_list_file", "file", ALL);
+	// Kernel 4.4
+	ksu_allow(db, "kernel", "packages_list_file", "dir", ALL);
+	// Android 9-:
+	// http://aospxref.com/android-9.0.0_r61/xref/system/sepolicy/private/file_contexts#360
+	ksu_allow(db, "kernel", "system_data_file", "file", ALL);
+	ksu_allow(db, "kernel", "system_data_file", "dir", ALL);
+	// For mounting loop devices, mirrors, tmpfs
+	ksu_allow(db, "kernel", ALL, "file", "read");
+	ksu_allow(db, "kernel", ALL, "file", "write");
+	// For manual hooked init context
+	ksu_allow(db, "init", "adb_data_file", "file", ALL);
+	ksu_allow(db, "init", "adb_data_file", "dir", ALL); // #1289
+	// we need to umount modules in zygote
+	ksu_allow(db, "zygote", "adb_data_file", "dir", "search");
 }
 
 static DEFINE_MUTEX(ksu_rules);
@@ -178,15 +212,15 @@ extern int avc_ss_reset(struct selinux_avc *avc, u32 seqno);
 static void reset_avc_cache(void)
 {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) ||                           \
-    !defined(KSU_COMPAT_USE_SELINUX_STATE)
-    avc_ss_reset(0);
-    selnl_notify_policyload(0);
-    selinux_status_update_policyload(0);
+	!defined(KSU_COMPAT_USE_SELINUX_STATE)
+	avc_ss_reset(0);
+	selnl_notify_policyload(0);
+	selinux_status_update_policyload(0);
 #else
-    struct selinux_avc *avc = selinux_state.avc;
-    avc_ss_reset(avc, 0);
-    selnl_notify_policyload(0);
-    selinux_status_update_policyload(&selinux_state, 0);
+	struct selinux_avc *avc = selinux_state.avc;
+	avc_ss_reset(avc, 0);
+	selnl_notify_policyload(0);
+	selinux_status_update_policyload(&selinux_state, 0);
 #endif
     selinux_xfrm_notify_policyload();
 }

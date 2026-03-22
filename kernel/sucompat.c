@@ -131,46 +131,6 @@ static int ksu_sucompat_user_common(const char __user **filename_user,
     return 0;
 }
 
-static inline bool is_su_allowed(void)
-{
-	if (!ksu_su_compat_enabled)
-		return false;
-
-#ifdef CONFIG_SECCOMP
-	if (likely(!!current->seccomp.mode))
-		return false;
-#endif
-
-	return true;
-}
-
-static int ksu_sucompat_user_common(const char __user **filename_user,
-				    const char *syscall_name,
-				    const bool escalate)
-{
-	char path[sizeof(su_path) + 1] = { 0 };
-
-	if (unlikely(!filename_user))
-		return 0;
-	if (!is_su_allowed())
-		return 0;
-
-	ksu_strncpy_from_user_nofault(path, *filename_user, sizeof(path));
-	if (memcmp(path, su_path, sizeof(su_path)))
-		return 0;
-
-	if (escalate) {
-		pr_info("%s su found\n", syscall_name);
-		*filename_user = ksud_user_path();
-		escape_with_root_profile(); // escalate !!
-	} else {
-		pr_info("%s su->sh!\n", syscall_name);
-		*filename_user = sh_user_path();
-	}
-
-	return 0;
-}
-
 int ksu_handle_faccessat(int *dfd, const char __user **filename_user, int *mode,
                          int *__unused_flags)
 {
@@ -207,6 +167,7 @@ int ksu_handle_stat(int *dfd, const char __user **filename_user, int *flags)
 {
     return ksu_sucompat_user_common(filename_user, "newfstatat", false);
 }
+#endif
 
 int ksu_handle_execve_sucompat(int *fd, const char __user **filename_user,
                                void *__never_use_argv, void *__never_use_envp,

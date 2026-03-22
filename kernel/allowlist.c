@@ -73,7 +73,6 @@ static void init_default_profiles(void)
     default_root_profile.groups[0] = 0;
     memcpy(&default_root_profile.capabilities.effective, &full_cap,
            sizeof(default_root_profile.capabilities.effective));
-    default_root_profile.namespaces = KSU_NS_INHERITED;
     strcpy(default_root_profile.selinux_domain, KSU_DEFAULT_SELINUX_DOMAIN);
 
     // This means that we will umount modules by default!
@@ -302,15 +301,6 @@ bool __ksu_is_allow_uid(uid_t uid)
     }
 
     return false;
-}
-
-bool __ksu_is_allow_uid_for_current(uid_t uid)
-{
-    if (unlikely(uid == 0)) {
-        // already root, but only allow our domain.
-        return is_ksu_domain();
-    }
-    return __ksu_is_allow_uid(uid);
 }
 
 bool __ksu_is_allow_uid_for_current(uid_t uid)

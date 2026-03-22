@@ -32,7 +32,6 @@
 #include "klog.h" // IWYU pragma: keep
 #include "ksud.h"
 #include "kernel_compat.h"
-#include "util.h"
 #include "selinux/selinux.h"
 #include "throne_tracker.h"
 #include "pkg_observer.h"
@@ -186,39 +185,6 @@ static int __maybe_unused count(struct user_arg_ptr argv, int max)
         }
     }
     return i;
-}
-
-static void on_post_fs_data_cbfun(struct callback_head *cb)
-{
-    on_post_fs_data();
-}
-
-static struct callback_head on_post_fs_data_cb = { .func =
-                                                       on_post_fs_data_cbfun };
-
-static bool check_argv(struct user_arg_ptr argv, int index,
-                       const char *expected, char *buf, size_t buf_len)
-{
-    const char __user *p;
-    int argc;
-
-    argc = count(argv, MAX_ARG_STRINGS);
-    if (argc <= index)
-        return false;
-
-    p = get_user_arg_ptr(argv, index);
-    if (!p || IS_ERR(p))
-        goto fail;
-
-    if (ksu_strncpy_from_user_nofault(buf, p, buf_len) <= 0)
-        goto fail;
-
-    buf[buf_len - 1] = '\0';
-    return !strcmp(buf, expected);
-
-fail:
-    pr_err("check_argv failed\n");
-    return false;
 }
 
 static void on_post_fs_data_cbfun(struct callback_head *cb)

@@ -21,7 +21,6 @@
 #include "selinux/selinux.h"
 #include "seccomp_cache.h"
 #include "supercalls.h"
-#include "syscall_hook_manager.h"
 #include "kernel_umount.h"
 #include "kernel_compat.h"
 

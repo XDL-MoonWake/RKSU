@@ -45,7 +45,7 @@ ccflags-y += -DKSU_COMPAT_HAS_CURRENT_SID
 endif
 
 ifeq ($(shell grep -q "struct selinux_state " $(srctree)/security/selinux/include/security.h; echo $$?),0)
-ccflags-y += -DKSU_COMPAT_HAS_SELINUX_STATE
+ccflags-y += -DKSU_COMPAT_USE_SELINUX_STATE
 endif
 
 # Handle optional backports
@@ -79,17 +79,11 @@ endif
 
 # some old kernel backport this, let's check if put_seccomp_filter still exist
 ifneq ($(shell grep -wq "put_seccomp_filter" $(srctree)/kernel/seccomp.c $(srctree)/include/linux/seccomp.h; echo $$?),0)
-ifeq ($(shell grep -wq "seccomp_filter_release" $(srctree)/kernel/seccomp.c $(srctree)/include/linux/seccomp.h; echo $$?),0)
 ccflags-y += -DKSU_OPTIONAL_SECCOMP_FILTER_RELEASE
-endif
 endif
 
 ifeq ($(shell grep -q "anon_inode_getfd_secure" $(srctree)/fs/anon_inodes.c; echo $$?),0)
 ccflags-y += -DKSU_HAS_GETFD_SECURE
-endif
-
-ifeq ($(shell grep -q "security_inode_init_security_anon" $(srctree)/include/linux/security.h; echo $$?),0)
-ccflags-y += -DKSU_COMPAT_HAS_INIT_SEC_ANON
 endif
 
 # Checks Samsung
@@ -122,7 +116,7 @@ ccflags-y += -Wno-declaration-after-statement -Wno-unused-function -Wno-missing-
 ## For susfs stuff ##
 ifeq ($(shell test -e $(srctree)/fs/susfs.c; echo $$?),0)
 $(eval SUSFS_VERSION=$(shell cat $(srctree)/include/linux/susfs.h | grep -E '^#define SUSFS_VERSION' | cut -d' ' -f3 | sed 's/"//g'))
-$(info -- KernelSU-SusFS version: $(SUSFS_VERSION))
+$(info -- SusFS Version: $(SUSFS_VERSION))
 else
 $(error -- You have not integrated susfs in your kernel yet. Read: https://gitlab.com/simonpunk/susfs4ksu)
 endif

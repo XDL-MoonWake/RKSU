@@ -126,6 +126,12 @@ struct ksu_add_try_umount_cmd {
     __u8 mode; // denotes what to do with it 0:wipe_list 1:add_to_list 2:delete_entry
 };
 
+struct ksu_new_get_allow_list_cmd {
+    __u16 count; // Input / Output: number of UIDs in array
+    __u16 total_count; // Output: total number of UIDs in requested list
+    __u32 uids[0]; // Output: array of allowed/denied UIDs
+};
+
 #define KSU_UMOUNT_WIPE 0 // ignore everything and wipe list
 #define KSU_UMOUNT_ADD 1 // add entry (path + flags)
 #define KSU_UMOUNT_DEL 2 // delete entry, strcmp
@@ -177,6 +183,12 @@ struct ksu_ioctl_cmd_map {
     ksu_ioctl_handler_t handler;
     ksu_perm_check_t perm_check; // Permission check function
 };
+
+#define KSU_IOCTL(CMD, NAME, HANDLER, PERM)                                    \
+	{ .cmd = KSU_IOCTL_##CMD,                                              \
+	  .name = NAME,                                                        \
+	  .handler = HANDLER,                                                  \
+	  .perm_check = PERM }
 
 // Install KSU fd to current process
 int ksu_install_fd(void);

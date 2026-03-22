@@ -71,25 +71,6 @@ void __weak ext4_unregister_sysfs(struct super_block *sb)
 }
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0) &&                            \
-    !defined(KSU_HAS_SELINUX_CRED)
-static inline struct task_security_struct *selinux_cred(const struct cred *cred)
-{
-    return cred->security;
-}
-#endif
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0) &&                            \
-    !defined(KSU_HAS_SELINUX_INODE)
-static inline struct inode_security_struct *
-selinux_inode(const struct inode *inode)
-{
-    if (unlikely(!inode->i_security))
-        return NULL;
-    return inode->i_security;
-}
-#endif
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) ||                           \
 	defined(CONFIG_IS_HW_HISI) || defined(CONFIG_KSU_ALLOWLIST_WORKAROUND)
 extern struct key *init_session_keyring;

@@ -224,7 +224,6 @@ void escape_with_root_profile(void)
     }
 #endif
 
-    setup_mount_ns(profile.namespaces);
     return;
 
 out_abort_creds:
