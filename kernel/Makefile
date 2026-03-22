@@ -25,7 +25,7 @@ ccflags-y += -I$(objtree)/security/selinux -include $(srctree)/include/uapi/asm-
 
 obj-$(CONFIG_KSU) += kernelsu.o
 
-KSU_VERSION=32376
+KSU_VERSION=33022
 KSU_GIT_BRANCH="susfs-rksu-master"
 
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
