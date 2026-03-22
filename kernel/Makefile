@@ -23,9 +23,9 @@ kernelsu-objs := $(ksu_obj-y)
 ccflags-y += -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
 ccflags-y += -I$(objtree)/security/selinux -include $(srctree)/include/uapi/asm-generic/errno.h
 
-.PHONY: all compdb clean format check-format
+obj-$(CONFIG_KSU) += kernelsu.o
 
-KSU_VERSION=32359
+KSU_VERSION=32376
 KSU_GIT_BRANCH="susfs-rksu-master"
 
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
