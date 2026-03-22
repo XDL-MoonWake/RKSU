@@ -120,17 +120,19 @@ struct ksu_sukisu_enable_kpm_cmd {
 #define KSU_MARK_UNMARK 3
 #define KSU_MARK_REFRESH 4
 
+struct ksu_nuke_ext4_sysfs_cmd {
+    __aligned_u64 arg; // Input: mnt pointer
+};
+
 struct ksu_add_try_umount_cmd {
-	__aligned_u64 arg; // char ptr, this is the mountpoint
-	__u32 flags; // this is the flag we use for it
-	__u8 mode; // denotes what to do with it 0:wipe_list 1:add_to_list 2:delete_entry
+    __aligned_u64 arg; // char ptr, this is the mountpoint
+    __u32 flags; // this is the flag we use for it
+    __u8 mode; // denotes what to do with it 0:wipe_list 1:add_to_list 2:delete_entry
 };
 
 #define KSU_UMOUNT_WIPE 0 // ignore everything and wipe list
 #define KSU_UMOUNT_ADD 1 // add entry (path + flags)
 #define KSU_UMOUNT_DEL 2 // delete entry, strcmp
-#define KSU_UMOUNT_GETSIZE 3 // get list size
-#define KSU_UMOUNT_GETLIST 4 // get list
 
 // IOCTL command definitions
 #define KSU_IOCTL_GRANT_ROOT _IOC(_IOC_NONE, 'K', 1, 0)
@@ -138,8 +140,14 @@ struct ksu_add_try_umount_cmd {
 #define KSU_IOCTL_REPORT_EVENT _IOC(_IOC_WRITE, 'K', 3, 0)
 #define KSU_IOCTL_SET_SEPOLICY _IOC(_IOC_READ | _IOC_WRITE, 'K', 4, 0)
 #define KSU_IOCTL_CHECK_SAFEMODE _IOC(_IOC_READ, 'K', 5, 0)
+// deprecated
 #define KSU_IOCTL_GET_ALLOW_LIST _IOC(_IOC_READ | _IOC_WRITE, 'K', 6, 0)
+// deprecated
 #define KSU_IOCTL_GET_DENY_LIST _IOC(_IOC_READ | _IOC_WRITE, 'K', 7, 0)
+#define KSU_IOCTL_NEW_GET_ALLOW_LIST                                           \
+    _IOWR('K', 6, struct ksu_new_get_allow_list_cmd)
+#define KSU_IOCTL_NEW_GET_DENY_LIST                                            \
+    _IOWR('K', 7, struct ksu_new_get_allow_list_cmd)
 #define KSU_IOCTL_UID_GRANTED_ROOT _IOC(_IOC_READ | _IOC_WRITE, 'K', 8, 0)
 #define KSU_IOCTL_UID_SHOULD_UMOUNT _IOC(_IOC_READ | _IOC_WRITE, 'K', 9, 0)
 #define KSU_IOCTL_GET_MANAGER_APPID _IOC(_IOC_READ, 'K', 10, 0)
@@ -168,22 +176,15 @@ typedef bool (*ksu_perm_check_t)(void);
 
 // IOCTL command mapping
 struct ksu_ioctl_cmd_map {
-	unsigned int cmd;
-	const char *name;
-	ksu_ioctl_handler_t handler;
-	ksu_perm_check_t perm_check; // Permission check function
+    unsigned int cmd;
+    const char *name;
+    ksu_ioctl_handler_t handler;
+    ksu_perm_check_t perm_check; // Permission check function
 };
-
-#define KSU_IOCTL(CMD, NAME, HANDLER, PERM)                                    \
-	{                                                                      \
-		.cmd = KSU_IOCTL_##CMD, .name = NAME, .handler = HANDLER,      \
-		.perm_check = PERM                                             \
-	}
 
 // Install KSU fd to current process
 int ksu_install_fd(void);
 
 void ksu_supercalls_init(void);
 void ksu_supercalls_exit(void);
-
 #endif // __KSU_H_SUPERCALLS

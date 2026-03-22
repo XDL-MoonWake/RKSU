@@ -15,11 +15,11 @@
 #define INIT_CONTEXT "u:r:init:s0"
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)) &&                        \
-	!defined(KSU_COMPAT_USE_SELINUX_STATE)
+    !defined(KSU_COMPAT_USE_SELINUX_STATE)
 #define KSU_COMPAT_USE_SELINUX_STATE
 #endif
 
-void setup_selinux(const char *);
+void setup_selinux(const char *, struct cred *);
 
 void setenforce(bool);
 

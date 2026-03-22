@@ -5,13 +5,15 @@ ksu_obj-y += apk_sign.o
 ksu_obj-y += sucompat.o
 ksu_obj-y += throne_tracker.o
 ksu_obj-y += setuid_hook.o
-ksu_obj-y += lsm_hook.o
+ksu_obj-y += lsm_hooks.o
 ksu_obj-y += kernel_compat.o
 ksu_obj-y += kernel_umount.o
 ksu_obj-y += supercalls.o
 ksu_obj-y += feature.o
 ksu_obj-y += ksud.o
 ksu_obj-y += file_wrapper.o
+ksu_obj-y += seccomp_cache.o
+ksu_obj-y += pkg_observer.o
 ksu_obj-y += selinux/selinux.o
 ksu_obj-y += selinux/sepolicy.o
 ksu_obj-y += selinux/rules.o
@@ -21,7 +23,7 @@ kernelsu-objs := $(ksu_obj-y)
 ccflags-y += -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
 ccflags-y += -I$(objtree)/security/selinux -include $(srctree)/include/uapi/asm-generic/errno.h
 
-obj-$(CONFIG_KSU) += kernelsu.o
+.PHONY: all compdb clean format check-format
 
 KSU_VERSION=32359
 KSU_GIT_BRANCH="susfs-rksu-master"

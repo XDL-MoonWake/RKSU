@@ -22,18 +22,18 @@ extern bool ksu_boot_completed;
 
 struct user_arg_ptr {
 #ifdef CONFIG_COMPAT
-	bool is_compat;
+    bool is_compat;
 #endif
-	union {
-		const char __user *const __user *native;
+    union {
+        const char __user *const __user *native;
 #ifdef CONFIG_COMPAT
-		const compat_uptr_t __user *compat;
+        const compat_uptr_t __user *compat;
 #endif
-	} ptr;
+    } ptr;
 };
 
 int ksu_handle_execveat_ksud(int *fd, struct filename **filename_ptr,
-			     struct user_arg_ptr *argv,
-			     struct user_arg_ptr *envp, int *flags);
+                             struct user_arg_ptr *argv,
+                             struct user_arg_ptr *envp, int *flags);
 
 #endif
