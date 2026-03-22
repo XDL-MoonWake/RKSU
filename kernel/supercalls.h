@@ -84,10 +84,6 @@ struct ksu_manage_mark_cmd {
 	__u32 result; // Output: for get operation - mark status or reg_count
 };
 
-struct ksu_nuke_ext4_sysfs_cmd {
-	__aligned_u64 arg; // Input: mnt pointer
-};
-
 // KernelSU-Next Compatibility struct
 struct ksu_next_get_hook_mode_cmd {
 	char mode[32];
