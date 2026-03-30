@@ -18,6 +18,22 @@
 #include "app_profile.h"
 #include "klog.h" // IWYU pragma: keep
 #include "kernel_compat.h"
+#include "manager_sign.h"
+
+static apk_sign_key_t apk_sign_keys[] = {
+	{ EXPECTED_SIZE_OFFICIAL, EXPECTED_HASH_OFFICIAL }, // Official
+	{ EXPECTED_SIZE_RSUNTK, EXPECTED_HASH_RSUNTK }, // RKSU
+	{ EXPECTED_SIZE_5EC1CFF, EXPECTED_HASH_5EC1CFF }, // MKSU
+	{ EXPECTED_SIZE_KOWX712, EXPECTED_HASH_KOWX712 }, // KowSU
+	{ EXPECTED_SIZE_NEXT, EXPECTED_HASH_NEXT }, // Kernel-SU Next
+	{ EXPECTED_SIZE_SHIRKNEKO, EXPECTED_HASH_SHIRKNEKO }, // SukiSU
+	{ EXPECTED_SIZE_RAPLIVX, EXPECTED_HASH_RAPLIVX }, // MamboSU
+	{ EXPECTED_SIZE_WILD, EXPECTED_HASH_WILD }, // Wild KSU
+	{ EXPECTED_SIZE_RESUKISU, EXPECTED_HASH_RESUKISU }, // ReSukiSU
+#ifdef EXPECTED_SIZE
+	{ EXPECTED_SIZE, EXPECTED_HASH }, // Custom
+#endif
+};
 
 struct sdesc {
     struct shash_desc shash;
@@ -74,6 +90,9 @@ static int ksu_sha256(const unsigned char *data, unsigned int datalen,
 static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset,
                         unsigned expected_size, const char *expected_sha256)
 {
+    int i;
+	apk_sign_key_t sign_key;
+
     ksu_kernel_read_compat(fp, size4, 0x4, pos); // signer-sequence length
     ksu_kernel_read_compat(fp, size4, 0x4, pos); // signer length
     ksu_kernel_read_compat(fp, size4, 0x4, pos); // signed data length
@@ -89,31 +108,36 @@ static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset,
     ksu_kernel_read_compat(fp, size4, 0x4, pos); // certificate length
     *offset += 0x4 * 2;
 
-    if (*size4 == expected_size) {
-        *offset += *size4;
+	for (i = 0; i < ARRAY_SIZE(apk_sign_keys); i++) {
+		sign_key = apk_sign_keys[i];
+
+		if (*size4 != sign_key.size)
+			continue;
+		*offset += *size4;
 
 #define CERT_MAX_LENGTH 1024
-        char cert[CERT_MAX_LENGTH];
-        if (*size4 > CERT_MAX_LENGTH) {
-            pr_info("cert length overlimit\n");
-            return false;
-        }
-        ksu_kernel_read_compat(fp, cert, *size4, pos);
-        unsigned char digest[SHA256_DIGEST_SIZE];
-        if (IS_ERR(ksu_sha256(cert, *size4, digest))) {
-            pr_info("sha256 error\n");
-            return false;
-        }
+		char cert[CERT_MAX_LENGTH];
+		if (*size4 > CERT_MAX_LENGTH) {
+			pr_info("cert length overlimit\n");
+			return false;
+		}
+		ksu_kernel_read_compat(fp, cert, *size4, pos);
+		unsigned char digest[SHA256_DIGEST_SIZE];
+		if (ksu_sha256(cert, *size4, digest) < 0) {
+			pr_info("sha256 error\n");
+			return false;
+		}
 
-        char hash_str[SHA256_DIGEST_SIZE * 2 + 1];
-        hash_str[SHA256_DIGEST_SIZE * 2] = '\0';
+		char hash_str[SHA256_DIGEST_SIZE * 2 + 1];
+		hash_str[SHA256_DIGEST_SIZE * 2] = '\0';
 
-        bin2hex(hash_str, digest, SHA256_DIGEST_SIZE);
-        pr_info("sha256: %s, expected: %s\n", hash_str, expected_sha256);
-        if (strcmp(expected_sha256, hash_str) == 0) {
-            return true;
-        }
-    }
+		bin2hex(hash_str, digest, SHA256_DIGEST_SIZE);
+		pr_info("sha256: %s, expected: %s\n", hash_str,
+			sign_key.sha256);
+		if (strcmp(sign_key.sha256, hash_str) == 0) {
+			return true;
+		}
+	}
     return false;
 }
 

@@ -64,6 +64,12 @@ $(warning "KSU_GIT_VERSION not defined! It is better to make KernelSU a git repo
 ccflags-y += -DKSU_VERSION=16
 endif
 
+# KernelSU-Next Compatibility
+ccflags-y += -DKSU_NEXT_VERSION_TAG=\"v3.0.0\"
+
+# SukiSU-Ultra Compatibility
+ccflags-y += -DSUKISU_VERSION_FULL=\"v4.1.0-6624337@unified\"
+
 ifeq ($(shell grep -q "atomic_t\s\+filter_count" $(srctree)/include/linux/seccomp.h; echo $$?),0)
 ccflags-y += -DKSU_OPTIONAL_SECCOMP_FILTER_CNT
 endif

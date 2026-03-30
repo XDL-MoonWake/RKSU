@@ -5,6 +5,12 @@
 #include <linux/workqueue.h>
 #include <linux/cred.h>
 
+// Kernel-SU Next Compatibility
+#define KERNEL_SU_NEXT_VERSION_TAG KSU_NEXT_VERSION_TAG
+
+// SukiSU-Ultra Compatibility
+#define SUKISU_ULTRA_VERSION_FULL SUKISU_VERSION_FULL
+
 #define KERNEL_SU_VERSION KSU_VERSION
 
 #define EVENT_POST_FS_DATA 1
