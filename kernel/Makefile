@@ -6,6 +6,12 @@ ccflags-y += -I$(srctree)/$(src) -I$(srctree)/$(src)/include
 
 ccflags-y += -DKSU_VERSION=32442
 
+# KernelSU-Next Compatibility
+ccflags-y += -DKSU_NEXT_VERSION_TAG=\"v3.2.2\"
+
+# SukiSU-Ultra Compatibility
+ccflags-y += -DSUKISU_VERSION_FULL=\"v4.1.2-3298984@unified\"
+
 ifeq ($(shell grep -q " current_sid(void)" $(srctree)/security/selinux/include/objsec.h; echo $$?),0)
 CFLAGS_ksu.o += -DKSU_COMPAT_HAS_CURRENT_SID
 endif

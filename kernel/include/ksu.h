@@ -7,6 +7,12 @@
 
 #define KERNEL_SU_VERSION KSU_VERSION
 
+// Kernel-SU Next Compatibility
+#define KERNEL_SU_NEXT_VERSION_TAG KSU_NEXT_VERSION_TAG
+
+// SukiSU-Ultra Compatibility
+#define SUKISU_ULTRA_VERSION_FULL SUKISU_VERSION_FULL
+
 extern struct cred *ksu_cred;
 extern bool allow_shell;
 

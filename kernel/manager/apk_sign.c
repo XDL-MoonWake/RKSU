@@ -1,17 +1,23 @@
+#include "manager/sign.h"
+
 struct sdesc {
     struct shash_desc shash;
     char ctx[];
 };
 
-static struct apk_sign_key {
-    unsigned size;
-    const char *sha256;
-} apk_sign_keys[] = {
-    { 0x396, "f415f4ed9435427e1fdf7f1fccd4dbc07b3d6b8751e4dbcec6f19671f427870b" }, // RKSU
-    { 0x033b, "c371061b19d8c7d7d6133c6a9bafe198fa944e50c1b31c9d8daa8d7f1fc2d2d6" }, // KSU
-    { 384, "7e0c6d7278a3bb8e364e0fcba95afaf3666cf5ff3c245a3b63c8833bd0445cc4" }, // MKSU
-    { 0x375, "484fcba6e6c43b1fb09700633bf2fb4758f13cb0b2f4457b80d075084b26c588" }, // KowSU
-    { 0x3e6, "79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7" }, // KSUN
+static apk_sign_key_t apk_sign_keys[] = {
+	{ EXPECTED_SIZE_OFFICIAL, EXPECTED_HASH_OFFICIAL }, // Official
+	{ EXPECTED_SIZE_RSUNTK, EXPECTED_HASH_RSUNTK }, // RKSU
+	{ EXPECTED_SIZE_5EC1CFF, EXPECTED_HASH_5EC1CFF }, // MKSU
+	{ EXPECTED_SIZE_KOWX712, EXPECTED_HASH_KOWX712 }, // KowSU
+	{ EXPECTED_SIZE_NEXT, EXPECTED_HASH_NEXT }, // Kernel-SU Next
+	{ EXPECTED_SIZE_SHIRKNEKO, EXPECTED_HASH_SHIRKNEKO }, // SukiSU
+	{ EXPECTED_SIZE_RAPLIVX, EXPECTED_HASH_RAPLIVX }, // MamboSU
+	{ EXPECTED_SIZE_WILD, EXPECTED_HASH_WILD }, // Wild KSU
+	{ EXPECTED_SIZE_RESUKISU, EXPECTED_HASH_RESUKISU }, // ReSukiSU
+#ifdef EXPECTED_SIZE
+	{ EXPECTED_SIZE, EXPECTED_HASH }, // Custom
+#endif
 };
 
 static struct sdesc *init_sdesc(struct crypto_shash *alg)
@@ -62,7 +68,7 @@ static int ksu_sha256(const unsigned char *data, unsigned int datalen, unsigned 
 static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset)
 {
     int i;
-    struct apk_sign_key sign_key;
+	apk_sign_key_t sign_key;
 
     kernel_read(fp, size4, 0x4, pos); // signer-sequence length
     kernel_read(fp, size4, 0x4, pos); // signer length
@@ -84,8 +90,7 @@ static bool check_block(struct file *fp, u32 *size4, loff_t *pos, u32 *offset)
 
         if (*size4 != sign_key.size)
             continue;
-        *offset += *size4;
-
+        *offset += *size4;  
 #define CERT_MAX_LENGTH 1024
         char cert[CERT_MAX_LENGTH];
         if (*size4 > CERT_MAX_LENGTH) {
