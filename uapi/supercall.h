@@ -120,6 +120,33 @@ static const __u32 KSU_MARK_MARK = 2;
 static const __u32 KSU_MARK_UNMARK = 3;
 static const __u32 KSU_MARK_REFRESH = 4;
 
+// KernelSU-Next Compatibility struct
+struct ksu_next_get_hook_mode_cmd {
+	char mode[32];
+};
+
+struct ksu_next_get_version_tag_cmd {
+	char tag[32];
+};
+
+// SukiSU-Ultra Compatibility struct
+struct ksu_sukisu_get_full_version_cmd {
+	char version_full[255]; // Output: full version string
+};
+
+struct ksu_sukisu_get_hook_type_cmd {
+	char hook_type[32];
+};
+
+struct ksu_sukisu_list_try_umount_cmd {
+	__aligned_u64 arg; // User buffer
+	__u32 buf_size; // Buffer size provided by userspace
+};
+
+struct ksu_sukisu_enable_kpm_cmd {
+	__u8 enabled; // Output: true if KPM is enabled
+};
+
 struct ksu_nuke_ext4_sysfs_cmd {
     __aligned_u64 arg; /* Input: mnt pointer */
 };
@@ -163,5 +190,13 @@ static const __u32 KSU_IOCTL_NUKE_EXT4_SYSFS = _IOC(_IOC_WRITE, 'K', 17, 0);
 static const __u32 KSU_IOCTL_ADD_TRY_UMOUNT = _IOC(_IOC_WRITE, 'K', 18, 0);
 static const __u32 KSU_IOCTL_SET_INIT_PGRP = _IO('K', 19);
 static const __u32 KSU_IOCTL_GET_SULOG_FD = _IOW('K', 20, struct ksu_get_sulog_fd_cmd);
+// KernelSU-Next Compatibility command definitions
+static const __u32 KSU_IOCTL_GET_HOOK_MODE = _IOC(_IOC_READ, 'K', 98, 0)
+static const __u32 KSU_IOCTL_GET_VERSION_TAG _IOC(_IOC_READ, 'K', 99, 0)
+// SukiSU-Ultra Compatibility command definitions
+static const __u32 KSU_IOCTL_GET_FULL_VERSION = _IOC(_IOC_READ, 'K', 100, 0)
+static const __u32 KSU_IOCTL_HOOK_TYPE = _IOC(_IOC_READ, 'K', 101, 0)
+static const __u32 KSU_IOCTL_ENABLE_KPM = _IOC(_IOC_READ, 'K', 102, 0)
+static const __u32 KSU_IOCTL_LIST_TRY_UMOUNT = _IOC(_IOC_READ | _IOC_WRITE, 'K', 301, 0)
 
 #endif
