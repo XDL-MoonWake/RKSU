@@ -1,3 +1,7 @@
+#ifdef CONFIG_KSU_SUSFS
+bool susfs_is_boot_completed_triggered __read_mostly = false;
+#endif // #ifdef CONFIG_KSU_SUSFS
+
 static int do_grant_root(void __user *arg)
 {
     int ret;
@@ -61,6 +65,9 @@ static int do_report_event(void __user *arg)
     case EVENT_MODULE_MOUNTED: {
         pr_info("module mounted!\n");
         on_module_mounted();
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+            susfs_is_boot_completed_triggered = true;
+#endif // #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
         break;
     }
     default:

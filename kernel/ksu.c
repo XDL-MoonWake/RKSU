@@ -6,6 +6,7 @@
 #include "include/uapi/selinux.h"
 #include "include/uapi/supercall.h"
 #include "include/uapi/sulog.h"
+#include <linux/susfs.h>
 
 // includes
 #include "include/klog.h"
@@ -78,6 +79,9 @@
 
 #include "infra/kernel_compat.c"
 
+#include <linux/susfs_def.h>
+#include <linux/namei.h>
+
 struct cred *ksu_cred;
 
 bool allow_shell = IS_ENABLED(CONFIG_KSU_DEBUG);
@@ -120,7 +124,13 @@ int __init kernelsu_init(void)
 
     ksu_throne_tracker_init();
 
-    ksu_ksud_init();
+#ifdef CONFIG_KSU_SUSFS
+    susfs_init();
+#endif // #ifdef CONFIG_KSU_SUSFS
+
+#ifndef CONFIG_KSU_SUSFS
+ 	ksu_ksud_init();
+#endif // #ifndef CONFIG_KSU_SUSFS
 
     ksu_file_wrapper_init();
 
